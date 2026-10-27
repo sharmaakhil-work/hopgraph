@@ -1,0 +1,64 @@
+{"a": "Taiwan Semiconductor Manufacturing Company Limited", "b": "TSMC", "type": "Company", "same": true}
+{"a": "Taiwan Semiconductor Manufacturing Co., Ltd.", "b": "Taiwan Semiconductor Manufacturing Company", "type": "Company", "same": true}
+{"a": "NVIDIA Corporation", "b": "Nvidia", "type": "Company", "same": true}
+{"a": "NVIDIA CORP", "b": "NVIDIA Corporation", "type": "Company", "same": true}
+{"a": "Advanced Micro Devices, Inc.", "b": "AMD", "type": "Company", "same": true}
+{"a": "Samsung Electronics Co., Ltd.", "b": "Samsung Electronics", "type": "Company", "same": true}
+{"a": "SK hynix Inc.", "b": "SK Hynix", "type": "Company", "same": true}
+{"a": "SK hynix", "b": "Hynix Semiconductor", "type": "Company", "same": true}
+{"a": "Micron Technology, Inc.", "b": "Micron", "type": "Company", "same": true}
+{"a": "Microsoft Corporation", "b": "Microsoft", "type": "Company", "same": true}
+{"a": "Alphabet Inc.", "b": "Alphabet", "type": "Company", "same": true}
+{"a": "Amazon.com, Inc.", "b": "Amazon.com", "type": "Company", "same": true}
+{"a": "Amazon Web Services", "b": "AWS", "type": "Company", "same": true}
+{"a": "Meta Platforms, Inc.", "b": "Meta Platforms", "type": "Company", "same": true}
+{"a": "Applied Materials, Inc.", "b": "Applied Materials", "type": "Company", "same": true}
+{"a": "ASML Holding N.V.", "b": "ASML", "type": "Company", "same": true}
+{"a": "Broadcom Inc.", "b": "Broadcom", "type": "Company", "same": true}
+{"a": "Hewlett Packard Enterprise Company", "b": "HPE", "type": "Company", "same": true}
+{"a": "Hewlett Packard Enterprise", "b": "Hewlett-Packard Enterprise", "type": "Company", "same": true}
+{"a": "Super Micro Computer, Inc.", "b": "Supermicro", "type": "Company", "same": true}
+{"a": "Texas Instruments Incorporated", "b": "Texas Instruments", "type": "Company", "same": true}
+{"a": "Analog Devices, Inc.", "b": "ADI", "type": "Company", "same": true}
+{"a": "Marvell Technology, Inc.", "b": "Marvell Technology Group", "type": "Company", "same": true}
+{"a": "Lam Research Corporation", "b": "Lam Research", "type": "Company", "same": true}
+{"a": "KLA Corporation", "b": "KLA", "type": "Company", "same": true}
+{"a": "Synopsys, Inc.", "b": "Synopsys", "type": "Company", "same": true}
+{"a": "Cadence Design Systems", "b": "Cadence", "type": "Company", "same": true}
+{"a": "Arm Holdings plc", "b": "Arm", "type": "Company", "same": true}
+{"a": "Qualcomm Incorporated", "b": "QUALCOMM", "type": "Company", "same": true}
+{"a": "GlobalFoundries Inc.", "b": "GLOBALFOUNDRIES", "type": "Company", "same": true}
+{"a": "Micron Technology", "b": "Microchip Technology", "type": "Company", "same": false}
+{"a": "Applied Materials", "b": "Applied Micro Circuits", "type": "Company", "same": false}
+{"a": "Intel Corporation", "b": "Intel Foundry", "type": "Company", "same": false}
+{"a": "Samsung Electronics", "b": "Samsung Biologics", "type": "Company", "same": false}
+{"a": "Analog Devices", "b": "Advanced Micro Devices", "type": "Company", "same": false}
+{"a": "Texas Instruments", "b": "National Instruments", "type": "Company", "same": false}
+{"a": "Marvell Technology", "b": "Microchip Technology", "type": "Company", "same": false}
+{"a": "ON Semiconductor", "b": "NXP Semiconductors", "type": "Company", "same": false}
+{"a": "Amazon.com", "b": "Amazon Web Services", "type": "Company", "same": false}
+{"a": "Alphabet", "b": "Google Cloud", "type": "Company", "same": false}
+{"a": "Microsoft", "b": "Micron", "type": "Company", "same": false}
+{"a": "Dell Technologies", "b": "Dell Financial Services", "type": "Company", "same": false}
+{"a": "Hewlett Packard Enterprise", "b": "HP Inc.", "type": "Company", "same": false}
+{"a": "SK hynix", "b": "SK Telecom", "type": "Company", "same": false}
+{"a": "Lam Research", "b": "Lam Research International", "type": "Company", "same": false}
+{"a": "Jensen Huang", "b": "Jen-Hsun Huang", "type": "Person", "same": true}
+{"a": "Lisa T. Su", "b": "Lisa Su", "type": "Person", "same": true}
+{"a": "Satya Nadella", "b": "Satya Narayana Nadella", "type": "Person", "same": true}
+{"a": "Lisa Su", "b": "Lisa Suh", "type": "Person", "same": false}
+{"a": "Mark Papermaster", "b": "Mark Zuckerberg", "type": "Person", "same": false}
+{"a": "3nm", "b": "3-nanometer", "type": "Technology", "same": true}
+{"a": "high-bandwidth memory", "b": "HBM", "type": "Technology", "same": true}
+{"a": "HBM3E", "b": "HBM3", "type": "Technology", "same": false}
+{"a": "CUDA", "b": "CUDA platform", "type": "Technology", "same": true}
+{"a": "extreme ultraviolet lithography", "b": "EUV lithography", "type": "Technology", "same": true}
+{"a": "DDR5", "b": "DDR4", "type": "Technology", "same": false}
+{"a": "H100", "b": "H200", "type": "Product", "same": false}
+{"a": "EPYC processors", "b": "EPYC", "type": "Product", "same": true}
+{"a": "United States", "b": "U.S.", "type": "Location", "same": true}
+{"a": "People's Republic of China", "b": "China", "type": "Location", "same": true}
+{"a": "Taiwan", "b": "Thailand", "type": "Location", "same": false}
+{"a": "U.S. Department of Commerce", "b": "Department of Commerce", "type": "Regulator", "same": true}
+{"a": "Bureau of Industry and Security", "b": "BIS", "type": "Regulator", "same": true}
+{"a": "Federal Trade Commission", "b": "Federal Communications Commission", "type": "Regulator", "same": false}

@@ -46,10 +46,13 @@ _ITEM_RE = re.compile(
     re.IGNORECASE | re.MULTILINE,
 )
 _BIO_RE = re.compile(
-    r"(director since|has served (as a|on)|serves on the board|board of directors of|"
-    r"previously served|prior to joining|age \d{2})",
-    re.IGNORECASE,
+    r"(director since|has served as (a|our) director|^\s*age:?\s*(\d{2})?\s*$|\bage:?\s+\d{2}\b|"
+    r"other (current )?public company boards?\s*:|member of (our|the) board since|"
+    r"(appointed|elected) to (our|the) board|joined (our|the) board)",
+    re.IGNORECASE | re.MULTILINE,
 )
+FALLBACK_MIN_CHARS = 20_000
+FALLBACK_CHARS = 250_000
 
 
 class Edgar:
@@ -117,10 +120,18 @@ def split_10k_items(text: str, keep: tuple[str, ...] = TENK_ITEMS) -> list[Secti
     """Split a 10-K into Items. The table of contents repeats every heading, so for each Item keep
     the longest span between consecutive headings (the real section, not the TOC line)."""
     matches = list(_ITEM_RE.finditer(text))
-    best: dict[str, tuple[int, int]] = {}
-    for m, nxt in zip(matches, matches[1:] + [None], strict=False):
+    # Runs of the same Item (page running headers like "PART I / Item 1") form one span that ends at the
+    # next heading of a different Item.
+    spans: list[tuple[str, int, int]] = []
+    for m in matches:
         key = m.group(1).upper()
-        start, end = m.start(), (nxt.start() if nxt else len(text))
+        if spans and spans[-1][0] == key:
+            continue
+        if spans:
+            spans[-1] = (spans[-1][0], spans[-1][1], m.start())
+        spans.append((key, m.start(), len(text)))
+    best: dict[str, tuple[int, int]] = {}
+    for key, start, end in spans:
         if key not in best or (end - start) > (best[key][1] - best[key][0]):
             best[key] = (start, end)
     sections = []
@@ -130,26 +141,51 @@ def split_10k_items(text: str, keep: tuple[str, ...] = TENK_ITEMS) -> list[Secti
             body = text[s:e].strip()
             if len(body) > 500:
                 sections.append(Section(path=f"10-K/Item {key}", text=body))
+    if sum(len(s.text) for s in sections) < FALLBACK_MIN_CHARS:
+        # Some filers (e.g. Intel) use their own layout with Item labels only in a cross-reference index.
+        # Business, MD&A and risk factors come first there; financial statements follow.
+        return [Section(path="10-K/Narrative (no Item headings)", text=text[:FALLBACK_CHARS].strip())]
     return sections
 
 
-def extract_director_bios(text: str, max_chars: int = 40_000) -> list[Section]:
-    """Proxy statements are long; keep only paragraphs that read like director/officer biographies."""
-    paras = [p.strip() for p in text.split("\n\n") if len(p.strip()) > 200]
-    bios = [p for p in paras if _BIO_RE.search(p)]
+def extract_director_bios(
+    text: str, max_chars: int = 60_000, before: int = 600, after: int = 3000
+) -> list[Section]:
+    """Proxy statements are long and laid out inconsistently (prose paragraphs, label/value blocks, tables).
+    Every layout puts the bio next to an anchor like "Director since" or "Age", so keep a window of text
+    around each anchor and merge overlapping windows."""
+    windows: list[list[int]] = []
+    for m in _BIO_RE.finditer(text):
+        s, e = max(0, m.start() - before), min(len(text), m.end() + after)
+        if windows and s <= windows[-1][1]:
+            windows[-1][1] = max(windows[-1][1], e)
+        else:
+            windows.append([s, e])
     out, size = [], 0
-    for p in bios:
-        if size + len(p) > max_chars:
+    for s, e in windows:
+        piece = text[s:e].strip()
+        if size + len(piece) > max_chars:
+            piece = piece[: max_chars - size]
+        out.append(piece)
+        size += len(piece)
+        if size >= max_chars:
             break
-        out.append(p)
-        size += len(p)
     return [Section(path="DEF 14A/Director and officer biographies", text="\n\n".join(out))] if out else []
+
+
+def _cached_text(path: Path, fetch) -> str:
+    if path.exists():
+        return path.read_text()
+    text = fetch()
+    path.write_text(text)
+    return text
 
 
 def download(tickers: list[str], raw_dir: Path, user_agent: str) -> list[Path]:
     edgar = Edgar(user_agent)
     tmap = edgar.ticker_map()
-    raw_dir.mkdir(parents=True, exist_ok=True)
+    text_dir = raw_dir / "text"
+    text_dir.mkdir(parents=True, exist_ok=True)
     (raw_dir / "company_tickers.json").write_text(json.dumps(tmap))
     written: list[Path] = []
     for ticker in tickers:
@@ -166,13 +202,16 @@ def download(tickers: list[str], raw_dir: Path, user_agent: str) -> list[Path]:
                 written.append(out)
                 continue
             url = edgar.filing_url(cik, f["accession"], f["primary"])
-            text = html_to_text(edgar.get(url).text)
+            # full text is kept so section parsing can be re-run without re-downloading
+            text = _cached_text(text_dir / f"{doc_id}.txt", lambda u=url: html_to_text(edgar.get(u).text))
             if form == "10-K":
                 sections = split_10k_items(text)
-                ex21 = edgar.exhibit21_name(cik, f["accession"])
-                if ex21:
-                    ex_text = html_to_text(edgar.get(edgar.filing_url(cik, f["accession"], ex21)).text)
-                    sections.append(Section(path="10-K/Exhibit 21 Subsidiaries", text=ex_text))
+                ex21_path = text_dir / f"{doc_id}.ex21.txt"
+                if not ex21_path.exists() and (ex21 := edgar.exhibit21_name(cik, f["accession"])):
+                    ex21_url = edgar.filing_url(cik, f["accession"], ex21)
+                    _cached_text(ex21_path, lambda u=ex21_url: html_to_text(edgar.get(u).text))
+                if ex21_path.exists():
+                    sections.append(Section(path="10-K/Exhibit 21 Subsidiaries", text=ex21_path.read_text()))
             else:
                 sections = extract_director_bios(text)
             if not sections:
@@ -192,6 +231,27 @@ def download(tickers: list[str], raw_dir: Path, user_agent: str) -> list[Path]:
             written.append(out)
             print(f"[ok] {doc_id}: {len(sections)} sections, {sum(len(s.text) for s in sections):,} chars")
     return written
+
+
+def reparse(raw_dir: Path) -> list[Document]:
+    """Re-split every downloaded filing from its cached full text (no network)."""
+    docs = []
+    for doc in load_documents(raw_dir):
+        text_path = raw_dir / "text" / f"{doc.doc_id}.txt"
+        if not text_path.exists():
+            continue
+        text = text_path.read_text()
+        if doc.form == "10-K":
+            sections = split_10k_items(text)
+            ex21_path = raw_dir / "text" / f"{doc.doc_id}.ex21.txt"
+            if ex21_path.exists():
+                sections.append(Section(path="10-K/Exhibit 21 Subsidiaries", text=ex21_path.read_text()))
+        else:
+            sections = extract_director_bios(text)
+        doc = doc.model_copy(update={"sections": sections})
+        (raw_dir / f"{doc.doc_id}.json").write_text(doc.model_dump_json(indent=1))
+        docs.append(doc)
+    return docs
 
 
 def load_documents(raw_dir: Path, limit: int | None = None) -> list[Document]:

@@ -65,6 +65,18 @@ def download(
     typer.echo(f"{len(paths)} filings in {s.raw_dir}")
 
 
+@app.command("reparse")
+def reparse_cmd():
+    """Re-split downloaded filings into sections from the cached text (no network)."""
+    from kgrag.corpus.edgar import reparse
+
+    for d in reparse(get_settings().raw_dir):
+        typer.echo(
+            f"{d.doc_id:28s} "
+            + ", ".join(f"{s.path.split('/')[-1]}: {len(s.text) // 1000}k" for s in d.sections)
+        )
+
+
 @app.command()
 def estimate(limit: Annotated[int | None, typer.Option(help="Only the first N filings")] = None):
     """Estimate Claude extraction cost for the corpus before spending anything."""

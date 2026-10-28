@@ -9,7 +9,7 @@ from kgrag.ingest.chunk import chunk_document, chunk_id
 from kgrag.models import Document, Passage, Section
 from kgrag.pipeline import QueryResult
 
-FILLER = "The Company designs accelerated computing platforms. " * 30
+FILLER = "The Company designs accelerated computing platforms. " * 150
 TENK = f"""
 Table of Contents
 Item 1. Business 4
@@ -36,11 +36,27 @@ def test_10k_items_skip_table_of_contents():
     assert "Item 1B" not in sections["10-K/Item 1A"]
 
 
-def test_director_bios_filter():
-    bio = "Jane Example has served as a director since 2019 and serves on the board of Fabrikam. " * 4
-    text = f"{bio}\n\nThe annual meeting will be held virtually and shareholders may vote online. " * 1
-    out = extract_director_bios(text)
-    assert len(out) == 1 and "Jane Example" in out[0].text and "annual meeting" not in out[0].text
+def test_running_page_headers_do_not_split_an_item():
+    pages = "\n".join(f"PART I\nItem 1\n{FILLER}" for _ in range(3))
+    text = f"Item 1. Business\n{pages}\nItem 1A. Risk Factors\n{FILLER}\nItem 7. MD&A\n{FILLER}\nItem 8. Statements\n"
+    sections = {s.path: s.text for s in split_10k_items(text)}
+    assert sections["10-K/Item 1"].count("accelerated computing") >= 3 * 150
+
+
+def test_filing_without_item_headings_falls_back_to_narrative():
+    text = "Fundamentals of our business. " + FILLER * 5 + "\nPart I Item 1. Business: page 4\n"
+    (section,) = split_10k_items(text)
+    assert section.path == "10-K/Narrative (no Item headings)" and section.text.startswith("Fundamentals")
+
+
+def test_director_bios_found_in_prose_and_label_layouts():
+    noise = "The annual meeting will be held virtually and shareholders may vote online. " * 80
+    prose = "Jane Example has served as a director since 2019 and sits on the board of Fabrikam."
+    labels = "John Sample\n\nDirector Since:\n 2021\n\nAge:\n 58\n\nMr. Sample is CEO of Contoso."
+    out = extract_director_bios(f"{noise}\n\n{prose}\n\n{noise}\n\n{labels}\n\n{noise}", after=200, before=50)
+    assert len(out) == 1
+    assert "Jane Example" in out[0].text and "Mr. Sample is CEO of Contoso" in out[0].text
+    assert len(out[0].text) < len(noise)
 
 
 def test_chunk_ids_are_stable():

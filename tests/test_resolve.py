@@ -1,9 +1,9 @@
 from datetime import date
 
-from kgrag.embeddings import HashEmbedder
-from kgrag.ingest.resolve import Resolver, acronyms, normalize, same_entity
-from kgrag.models import Chunk
-from kgrag.ontology import ChunkExtraction, EntityType
+from hopgraph.embeddings import HashEmbedder
+from hopgraph.ingest.resolve import Resolver, acronyms, normalize, same_entity
+from hopgraph.models import Chunk
+from hopgraph.ontology import ChunkExtraction, EntityType
 
 
 def test_normalize_strips_legal_suffixes_and_punctuation():
@@ -120,7 +120,7 @@ def test_people_with_same_name_but_no_shared_company_stay_separate():
 
 
 def test_descriptor_rule_merges_generic_and_blocks_distinguishing_suffixes():
-    from kgrag.ingest.resolve import descriptor_rule
+    from hopgraph.ingest.resolve import descriptor_rule
 
     assert descriptor_rule("cadence", "cadence design systems") == "merge"
     assert descriptor_rule("supermicro", "super micro computer") == "merge"

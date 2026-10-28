@@ -1,5 +1,5 @@
 [project]
-name = "kg-rag"
+name = "hopgraph"
 version = "0.1.0"
 description = "Hybrid knowledge-graph + vector RAG over SEC filings, benchmarked against vector-only RAG by hop count"
 readme = "README.md"
@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [project.scripts]
-kgrag = "kgrag.cli:app"
+hopgraph = "hopgraph.cli:app"
 
 [dependency-groups]
 dev = ["pytest>=8", "ruff>=0.5"]
@@ -34,7 +34,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/kgrag"]
+packages = ["src/hopgraph"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

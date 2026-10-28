@@ -1,13 +1,13 @@
 from datetime import date
 
-from kgrag.answer.citations import AnswerDraft, citation_errors
-from kgrag.answer.context import build_context
-from kgrag.answer.generate import generate_answer
-from kgrag.embeddings import HashEmbedder
-from kgrag.models import Passage
-from kgrag.retrieval.entity_link import EntityLinker
-from kgrag.retrieval.router import Route, route
-from kgrag.retrieval.verbalize import verbalize
+from hopgraph.answer.citations import AnswerDraft, citation_errors
+from hopgraph.answer.context import build_context
+from hopgraph.answer.generate import generate_answer
+from hopgraph.embeddings import HashEmbedder
+from hopgraph.models import Passage
+from hopgraph.retrieval.entity_link import EntityLinker
+from hopgraph.retrieval.router import Route, route
+from hopgraph.retrieval.verbalize import verbalize
 
 ROWS = [
     {

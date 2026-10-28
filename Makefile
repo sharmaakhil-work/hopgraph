@@ -17,8 +17,8 @@ lint:
 
 # Small, budget-capped end-to-end run on 3 filings
 smoke:
-	uv run kgrag download --limit 3
-	uv run kgrag estimate
-	uv run kgrag ingest --max-usd 2
-	uv run kgrag resolve
-	uv run kgrag index
+	uv run hopgraph download --limit 3
+	uv run hopgraph estimate
+	uv run hopgraph ingest --max-usd 2
+	uv run hopgraph resolve
+	uv run hopgraph index

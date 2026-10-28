@@ -2,7 +2,7 @@ services:
   neo4j:
     image: neo4j:5-community
     environment:
-      NEO4J_AUTH: neo4j/kgrag-password
+      NEO4J_AUTH: neo4j/hopgraph-password
       NEO4J_server_memory_heap_max__size: 1G
     ports:
       - "7474:7474"
@@ -17,16 +17,16 @@ services:
   postgres:
     image: pgvector/pgvector:pg16
     environment:
-      POSTGRES_USER: kgrag
-      POSTGRES_PASSWORD: kgrag
-      POSTGRES_DB: kgrag
+      POSTGRES_USER: hopgraph
+      POSTGRES_PASSWORD: hopgraph
+      POSTGRES_DB: hopgraph
     # 5433 so it doesn't collide with a host Postgres on 5432
     ports:
       - "5433:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U kgrag"]
+      test: ["CMD-SHELL", "pg_isready -U hopgraph"]
       interval: 5s
       retries: 20
 

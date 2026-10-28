@@ -1,4 +1,4 @@
-"""Runs against live Neo4j + Postgres. Opt in with KGRAG_INTEGRATION=1.
+"""Runs against live Neo4j + Postgres. Opt in with HOPGRAPH_INTEGRATION=1.
 
 All rows use `test:` / `c_test` ids and are removed afterwards, so it is safe to run next to a real graph.
 """
@@ -8,15 +8,15 @@ from datetime import date
 
 import pytest
 
-from kgrag.config import get_settings
-from kgrag.ingest.graph_writer import write_graph
-from kgrag.ingest.resolve import Resolution
-from kgrag.models import Chunk
-from kgrag.ontology import RelType
-from kgrag.retrieval.cypher_templates import TEMPLATES, GraphParams, GraphPlan, TemplateId, build_query
-from kgrag.retrieval.verbalize import verbalize
+from hopgraph.config import get_settings
+from hopgraph.ingest.graph_writer import write_graph
+from hopgraph.ingest.resolve import Resolution
+from hopgraph.models import Chunk
+from hopgraph.ontology import RelType
+from hopgraph.retrieval.cypher_templates import TEMPLATES, GraphParams, GraphPlan, TemplateId, build_query
+from hopgraph.retrieval.verbalize import verbalize
 
-pytestmark = pytest.mark.skipif(os.environ.get("KGRAG_INTEGRATION") != "1", reason="needs live databases")
+pytestmark = pytest.mark.skipif(os.environ.get("HOPGRAPH_INTEGRATION") != "1", reason="needs live databases")
 
 
 def _chunk(i: int) -> Chunk:
@@ -57,7 +57,7 @@ RELATIONS = [
 
 @pytest.fixture(scope="module")
 def driver():
-    from kgrag.db import neo4j_driver
+    from hopgraph.db import neo4j_driver
 
     d = neo4j_driver(get_settings())
     res = Resolution(

@@ -2,12 +2,12 @@ from datetime import date
 
 from fastapi.testclient import TestClient
 
-from kgrag.api.app import create_app
-from kgrag.corpus.edgar import extract_director_bios, split_10k_items
-from kgrag.evaluation.judge import entity_f1
-from kgrag.ingest.chunk import chunk_document, chunk_id
-from kgrag.models import Document, Passage, Section
-from kgrag.pipeline import QueryResult
+from hopgraph.api.app import create_app
+from hopgraph.corpus.edgar import extract_director_bios, split_10k_items
+from hopgraph.evaluation.judge import entity_f1
+from hopgraph.ingest.chunk import chunk_document, chunk_id
+from hopgraph.models import Document, Passage, Section
+from hopgraph.pipeline import QueryResult
 
 FILLER = "The Company designs accelerated computing platforms. " * 150
 TENK = f"""
@@ -103,7 +103,7 @@ class StubPipeline:
             if i == "c_1"
         }
 
-    def answer(self, question, mode="auto", system="kgrag"):
+    def answer(self, question, mode="auto", system="hopgraph"):
         return QueryResult(
             question=question,
             system=system,

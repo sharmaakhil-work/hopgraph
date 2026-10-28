@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from kgrag.llm import LLM, CostMeter
+from hopgraph.llm import LLM, CostMeter
 
 
 class FakeMessages:

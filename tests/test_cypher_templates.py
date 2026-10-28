@@ -1,8 +1,8 @@
 import pytest
 from pydantic import ValidationError
 
-from kgrag.ontology import RelType
-from kgrag.retrieval.cypher_templates import (
+from hopgraph.ontology import RelType
+from hopgraph.retrieval.cypher_templates import (
     MAX_HOPS,
     TEMPLATES,
     GraphParams,

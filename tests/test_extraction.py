@@ -1,7 +1,7 @@
 import pytest
 
-from kgrag.llm import BudgetExceeded, StructuredOutputError, strict_schema
-from kgrag.ontology import ChunkExtraction, validate_extraction
+from hopgraph.llm import BudgetExceeded, StructuredOutputError, strict_schema
+from hopgraph.ontology import ChunkExtraction, validate_extraction
 
 CHUNK_ID = "c_abc"
 TEXT = "We rely on Taiwan Semiconductor Manufacturing Company Limited to manufacture our GPUs."

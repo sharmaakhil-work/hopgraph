@@ -35,28 +35,33 @@ The facts live in different filings: NVIDIA's 10-K names the supplier, the suppl
 
 ## How it works
 
+**Building the graph and the index**
+
 ```mermaid
-flowchart LR
-  subgraph Ingest
-    E[SEC EDGAR<br/>10-K Items 1 / 1A / 7<br/>Exhibit 21, proxy bios] --> C[Section-aware chunks<br/>stable chunk_id]
-    C --> X[Claude Haiku extraction<br/>strict schema, validate + retry<br/>cached by document hash]
-    X --> R[Entity resolution<br/>normalize · ticker · acronym ·<br/>descriptor rule · embeddings]
-    R --> N[(Neo4j<br/>MERGE only<br/>edges carry chunk_ids)]
-    C --> V[(pgvector HNSW<br/>chunks + entity_ids)]
-  end
-  subgraph Query
-    Q[Question] --> RT{Router<br/>Haiku → enum + confidence}
-    RT -- graph --> P[Planner picks a template<br/>and fills parameters]
-    P --> T[Parameterized Cypher<br/>read-only] --> VB[Paths → sentences]
-    RT -- vector --> VS[HNSW search]
-    RT -- hybrid / unsure --> P & VS
-    VB --> CTX[Labeled context<br/>GRAPH FACTS · PASSAGES]
-    VS --> CTX
-    CTX --> G[Sonnet answer<br/>claims + citations] --> CV{All citations<br/>retrieved?}
-    CV -- no, regenerate --> G
-    CV -- yes --> A[Answer + sources]
-  end
-  N -. same chunk_id .- V
+flowchart TD
+  E["SEC EDGAR filings<br/>10-K Items 1, 1A, 7 · subsidiaries · proxy bios"] --> C["Chunks with stable ids"]
+  C --> X["Claude Haiku extraction<br/>strict schema · validate + retry · cached"]
+  X --> R["Entity resolution<br/>TSMC = Taiwan Semiconductor Mfg."]
+  R --> N[("Neo4j graph<br/>every edge cites its chunk ids")]
+  C --> V[("pgvector HNSW<br/>every chunk lists its entity ids")]
+  N <-. "shared chunk ids" .-> V
+```
+
+**Answering a question**
+
+```mermaid
+flowchart TD
+  Q["Question"] --> RT{"Router (Haiku)<br/>graph · vector · hybrid"}
+  RT -->|graph| P["Planner picks a query template<br/>and fills its parameters"]
+  RT -->|vector| VS["Vector search"]
+  RT -->|"hybrid or low confidence"| P & VS
+  P --> T["Parameterized Cypher, read-only"] --> VB["Paths turned into sentences"]
+  VB --> CTX["Context in two labeled blocks:<br/>graph facts · retrieved passages"]
+  VS --> CTX
+  CTX --> G["Claude Sonnet writes claims with citations"]
+  G --> CV{"Every citation was retrieved?"}
+  CV -->|no| G
+  CV -->|yes| A["Answer + sources"]
 ```
 
 The central design choice is that both stores share chunk ids:
@@ -65,9 +70,9 @@ The central design choice is that both stores share chunk ids:
 
 ## What's measured so far
 
-| | |
+| Area | Result |
 |---|---|
-| **Corpus** | 25 semiconductor / AI-infrastructure companies (NVIDIA, AMD, Intel, Broadcom, Micron, TSMC's customers and suppliers, hyperscalers…): latest 10-K + proxy each = **50 filings, 6.08M characters, 2,579 chunks** |
+| **Corpus** | 25 semiconductor and AI-infrastructure companies (NVIDIA, AMD, Intel, Broadcom, Micron, Apple, Microsoft, Alphabet, Amazon and others), latest 10-K + proxy each: **50 filings, 6.08M characters, 2,579 chunks** |
 | **Vector index** | 2,579 chunks embedded locally with `bge-base-en-v1.5` in **130 s** on a laptop; HNSW (m=16, ef_construction=64) |
 | **Entity resolution** | **precision 1.00, recall 0.905, F1 0.95** on 64 hand-labeled name pairs (table below) |
 | **Graph queries** | All 11 Cypher templates run against live Neo4j, and re-running ingestion creates no duplicates (`HOPGRAPH_INTEGRATION=1 pytest`) |
